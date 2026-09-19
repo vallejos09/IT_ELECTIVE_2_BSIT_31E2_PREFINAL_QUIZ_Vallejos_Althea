@@ -1,0 +1,105 @@
+﻿@model ProjectDetailsViewModel
+@{
+    var p = Model.Project;
+    ViewData["Title"] = p.Title;
+}
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a asp-controller="Home" asp-action="Index">Projects</a><span>/</span>
+    <span>@p.Category</span><span>/</span>
+    <span aria-current="page">@p.Title</span>
+</nav>
+
+<article>
+    <div class="detail-hero">
+        <div class="thumb thumb-lg">
+            <img src="~/images/projects/@(p.Slug).png" alt="Screenshot of @p.Title" width="960" height="540" />
+        </div>
+        <div>
+            <p class="eyebrow">@p.Category</p>
+            <h1>@p.Title</h1>
+            <p class="lead">@p.Summary</p>
+            <div class="tags">
+                @foreach (var t in p.Tags)
+                {
+                    <span class="tag">@t</span>
+                }
+            </div>
+            <div class="card-actions">
+                <a class="btn btn-primary" href="@p.RepoUrl" target="_blank" rel="noopener noreferrer">View on GitHub ↗</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card prose">
+        <h2>About this project</h2>
+        <p>@p.Description</p>
+        <dl class="facts">
+            <dt>Repository</dt>
+            <dd>@p.Owner / @p.RepoName</dd>
+            <dt>Category</dt>
+            <dd>@p.Category</dd>
+        </dl>
+    </div>
+</article>
+
+<section class="comments" id="comments" aria-labelledby="comments-title">
+    <h2 id="comments-title">Comments <span class="count">@Model.Comments.Count</span></h2>
+
+    @if (TempData["Flash"] is string flash)
+    {
+        <div class="alert alert-success" role="status">@flash</div>
+    }
+
+    <form asp-action="AddComment" asp-route-slug="@p.Slug" method="post" class="card form">
+        <div asp-validation-summary="ModelOnly" class="alert alert-error" role="alert"></div>
+
+        <div class="field">
+            <label asp-for="NewComment.Name"></label>
+            <input asp-for="NewComment.Name" autocomplete="name" maxlength="40" />
+            <span asp-validation-for="NewComment.Name" class="field-error"></span>
+        </div>
+        <div class="field">
+            <label asp-for="NewComment.Message"></label>
+            <textarea asp-for="NewComment.Message" rows="4" maxlength="500"></textarea>
+            <span asp-validation-for="NewComment.Message" class="field-error"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Post comment</button>
+    </form>
+
+    @if (Model.Comments.Count == 0)
+    {
+        <p class="muted">No comments yet. Be the first to leave one.</p>
+    }
+    else
+    {
+        <ul class="comment-list">
+            @foreach (var c in Model.Comments)
+            {
+                <li class="comment card">
+                    <div class="comment-head">
+                        <strong>@c.Name</strong>
+                        <time data-local datetime="@c.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss")Z">
+                            @c.CreatedAt.ToString("MMM d, yyyy h:mm tt") UTC
+                        </time>
+                    </div>
+                    <p>@c.Message</p>
+                    <form asp-action="DeleteComment" asp-route-slug="@p.Slug" asp-route-id="@c.Id" method="post" class="inline">
+                        <button type="submit" class="link-danger">Delete</button>
+                    </form>
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+<nav class="pager" aria-label="Project navigation">
+    @if (Model.Previous is { } prev)
+    {
+        <a asp-action="Details" asp-route-slug="@prev.Slug">← @prev.Title</a>
+    }
+    @if (Model.Next is { } next)
+    {
+        <a class="next" asp-action="Details" asp-route-slug="@next.Slug">@next.Title →</a>
+    }
+</nav>

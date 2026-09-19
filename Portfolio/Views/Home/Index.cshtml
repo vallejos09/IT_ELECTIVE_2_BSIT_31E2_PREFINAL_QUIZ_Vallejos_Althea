@@ -1,0 +1,64 @@
+﻿@model IReadOnlyList<Project>
+@using Portfolio.Data
+@{
+    ViewData["Title"] = "Projects";
+    string CatId(string c) => "cat-" + c.ToLowerInvariant().Replace(' ', '-');
+}
+
+<section class="hero">
+    <p class="eyebrow">BSIT · Portfolio</p>
+    <h1>My Project Portfolio</h1>
+    <p class="lead">
+        A collection of <strong>@Model.Count</strong> coursework projects: quizzes, hands-on exercises,
+        exams and group work. Browse the table of contents, open a project for details, and leave a comment.
+    </p>
+</section>
+
+<section class="toc card" aria-labelledby="toc-title">
+    <h2 id="toc-title">Table of Contents</h2>
+    <ol class="toc-list">
+        @foreach (var cat in ProjectCatalog.Categories)
+        {
+            var items = Model.Where(p => p.Category == cat).ToList();
+            if (items.Count == 0) { continue; }
+            <li>
+                <a href="#@CatId(cat)">@cat</a> <span class="count">@items.Count</span>
+                <ul>
+                    @foreach (var p in items)
+                    {
+                        <li><a asp-controller="Projects" asp-action="Details" asp-route-slug="@p.Slug">@p.Title</a></li>
+                    }
+                </ul>
+            </li>
+        }
+    </ol>
+</section>
+
+@foreach (var cat in ProjectCatalog.Categories)
+{
+    var items = Model.Where(p => p.Category == cat).ToList();
+    if (items.Count == 0) { continue; }
+
+    <section id="@CatId(cat)" class="category">
+        <h2>@cat <span class="count">@items.Count</span></h2>
+        <div class="grid">
+            @foreach (var p in items)
+            {
+                <article class="card project-card">
+                    <a class="thumb" asp-controller="Projects" asp-action="Details" asp-route-slug="@p.Slug"
+                       tabindex="-1" aria-hidden="true">
+                        <img src="~/images/projects/@(p.Slug).png" alt="" loading="lazy" width="640" height="360" />
+                    </a>
+                    <div class="card-body">
+                        <h3><a asp-controller="Projects" asp-action="Details" asp-route-slug="@p.Slug">@p.Title</a></h3>
+                        <p>@p.Summary</p>
+                        <div class="card-actions">
+                            <a class="btn btn-primary" asp-controller="Projects" asp-action="Details" asp-route-slug="@p.Slug">View details</a>
+                            <a class="btn btn-ghost" href="@p.RepoUrl" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    </section>
+}

@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · Althea Vallejos</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav">
+            <a class="brand" asp-controller="Home" asp-action="Index">
+                <span class="brand-mark">AV</span> Althea Vallejos
+            </a>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <nav class="nav-links" aria-label="Main">
+                    <a asp-controller="Home" asp-action="Index">Projects</a>
+                    <a href="https://github.com/vallejos09" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                        <button type="submit" class="btn btn-ghost">Log out</button>
+                    </form>
+                </nav>
+            }
+        </div>
+    </header>
+
+    <main class="container">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">© @DateTime.Now.Year Althea Vallejos · Built with ASP.NET Core MVC</div>
+    </footer>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>
